@@ -1,0 +1,28 @@
+{
+    "name": "vendor-name/laramain",
+    "description": "CQRS with CommandBus and QueryBus for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^7.3|^8.0",
+        "illuminate/support": "^8.0|^9.0|^10.0",
+        "illuminate/console": "^8.0|^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "VendorName\\Laramain\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VendorName\\Laramain\\Providers\\PackageServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@php artisan vendor:publish --provider=\"VendorName\\Laramain\\Providers\\PackageServiceProvider\""
+        ]
+    }
+}
