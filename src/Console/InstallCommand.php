@@ -86,7 +86,6 @@ class InstallCommand extends Command
         // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
         $this->createFolderStructure([
             'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
-            'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
             'App' => ['Commands', 'Queries', 'Services'],
             'Infrastructure' => ['Repository', 'Controllers','Listerners'],
         ], $srcPath, $name);
@@ -94,6 +93,7 @@ class InstallCommand extends Command
         // Crear CommandBus y QueryBus.
         // Crear CommandBus y QueryBus.
         $this->createBuses();
+        $this->createStringValueObject();
 
         $this->info('Laramain package installed successfully with CQRS and DDD structure!');
     }
@@ -129,53 +129,64 @@ class InstallCommand extends Command
     protected function createBuses()
     {
         $sharedPath = base_path("src/Shared/CQRS");
-        $sharedPath = base_path("src/Shared/CQRS");
-
-        // Verificar si la carpeta Shared existe, si no, se crea.
+    
         // Verificar si la carpeta Shared existe, si no, se crea.
         if (!$this->filesystem->exists($sharedPath)) {
             $this->filesystem->makeDirectory($sharedPath, 0755, true);
             $this->info("Created: {$sharedPath}");
         }
-
+    
+        // Crear la carpeta Command si no existe.
+        $commandPath = "{$sharedPath}/Command";
+        if (!$this->filesystem->exists($commandPath)) {
+            $this->filesystem->makeDirectory($commandPath, 0755, true);
+            $this->info("Created: {$commandPath}");
+        }
+    
         // Crear CommandBus.php si no existe.
-        $commandBusPath = "{$sharedPath}/Command";
+        $commandBusPath = "{$commandPath}/CommandBus.php";
         if (!$this->filesystem->exists($commandBusPath)) {
             $this->filesystem->put($commandBusPath, file_get_contents(__DIR__.'/../Shared/CQRS/Command/CommandBus.php'));
             $this->info("Created: CommandBus.php");
         } else {
             $this->info("CommandBus.php already exists.");
-        } else {
-            $this->info("CommandBus.php already exists.");
-        }
-
+        } 
+    
         // Crear Command.php si no existe.
-        $commandInterfacePath = "{$sharedPath}/Command";
+        $commandInterfacePath = "{$commandPath}/Command.php";
         if (!$this->filesystem->exists($commandInterfacePath)) {
             $this->filesystem->put($commandInterfacePath, file_get_contents(__DIR__.'/../Shared/CQRS/Command/Command.php'));
             $this->info("Created: Command.php");
         } else {
             $this->info("Command.php already exists.");
         }
-
+    
+        // Crear la carpeta Query si no existe.
+        $queryPath = "{$sharedPath}/Query";
+        if (!$this->filesystem->exists($queryPath)) {
+            $this->filesystem->makeDirectory($queryPath, 0755, true);
+            $this->info("Created: {$queryPath}");
+        }
+    
         // Crear QueryBus.php si no existe.
-        $queryBusPath = "{$sharedPath}/Query";
+        $queryBusPath = "{$queryPath}/QueryBus.php";
         if (!$this->filesystem->exists($queryBusPath)) {
-            $this->filesystem->put($queryBusPath, file_get_contents(__DIR__.'/../Shared//CQRS/Query/QueryBus.php'));
+            $this->filesystem->put($queryBusPath, file_get_contents(__DIR__.'/../Shared/CQRS/Query/QueryBus.php'));
             $this->info("Created: QueryBus.php");
         } else {
             $this->info("QueryBus.php already exists.");
         }
-
+    
         // Crear Query.php si no existe.
-        $queryInterfacePath = "{$sharedPath}/Query";
+        $queryInterfacePath = "{$queryPath}/Query.php";
         if (!$this->filesystem->exists($queryInterfacePath)) {
-            $this->filesystem->put($queryInterfacePath, file_get_contents(__DIR__.'/../Shared/CQRS//Query/Query.php'));
+            $this->filesystem->put($queryInterfacePath, file_get_contents(__DIR__.'/../Shared/CQRS/Query/Query.php'));
             $this->info("Created: Query.php");
         } else {
             $this->info("Query.php already exists.");
         }
     }
+    
 
     /**
      * Crea un StringValueObject en la carpeta Shared/ValueObject si no existe.
