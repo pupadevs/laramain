@@ -1,6 +1,6 @@
 <?php
 
-namespace Pupadevs\Laramain\Shared\Query;
+namespace Pupadevs\Laramain\Shared\CQRS\Query;
 
 class QueryBus
 {

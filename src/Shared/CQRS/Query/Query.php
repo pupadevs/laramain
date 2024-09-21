@@ -1,6 +1,6 @@
 <?php 
 
-namespace Pupadevs\Laramain\Shared\Command;
+namespace Pupadevs\Laramain\Shared\CQRS\Query;
 
 interface Query
 {

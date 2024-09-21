@@ -1,12 +1,14 @@
 {
     "name": "pupadevs/laramain",
-    "description": "CQRS with CommandBus and QueryBus for Laravel.",
+    "description": "DDD, CQRS, UUID and more",
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^8.0|^8.2",
         "illuminate/support": "^8.0|^9.0|^10.0",
-        "illuminate/console": "^8.0|^9.0|^10.0"
+        "illuminate/console": "^8.0|^9.0|^10.0",
+       
+        "ramsey/uuid": "*"
     },
     "autoload": {
         "psr-4": {

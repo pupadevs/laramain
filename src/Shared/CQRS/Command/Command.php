@@ -1,5 +1,5 @@
 <?php 
 
-namespace Pupadevs\Laramain\Shared\Command;
+namespace Pupadevs\Laramain\Shared\CQRS\Command;
 
 interface Command{}

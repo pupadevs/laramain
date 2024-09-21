@@ -14,7 +14,7 @@ return [
     */
 
     'command_bus' => [
-        'class' => \PupaDevs\Laramain\Shared\CommandBus::class,
+        'class' => \PupaDevs\Laramain\Shared\CQRS\Command\CommandBus::class,
     ],
 
     /*
@@ -29,7 +29,7 @@ return [
     */
 
     'query_bus' => [
-        'class' => \PupaDevs\Laramain\Shared\QueryBus::class,
+        'class' => \PupaDevs\Laramain\Shared\CQRS\Query\QueryBus::class,
     ],
 
     /*
