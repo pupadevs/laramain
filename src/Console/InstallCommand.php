@@ -193,7 +193,7 @@ class InstallCommand extends Command
      */
     protected function createStringValueObject()
     {
-        $sharePath = base_path('src/Shared/ValueObject');
+        $sharePath = base_path('src/Shared/StringValueObject');
 
         // Verificar si la carpeta Shared existe, si no, se crea.
         if (!$this->filesystem->exists($sharePath)) {
@@ -205,7 +205,7 @@ class InstallCommand extends Command
 
         // Crear StringValueObject.php si no existe.
         if (!$this->filesystem->exists("{$sharePath}/StringValueObject.php")) {
-            $this->filesystem->put("{$sharePath}/StringValueObject.php", file_get_contents(__DIR__.'/../Shared/ValueObject/StringValueObject.php'));
+            $this->filesystem->put("{$sharePath}/StringValueObject.php", file_get_contents(__DIR__.'/../Shared/StringValueObject/StringValueObject.php'));
             $this->info("Created: StringValueObject.php");
         } else {
             $this->info("StringValueObject.php already exists.");
