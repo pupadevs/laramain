@@ -10,8 +10,17 @@ use Illuminate\Filesystem\Filesystem;
  * (Diseño impulsado por el Dominio) y los buses de comandos y consultas (CQRS) 
  * para una entidad especificada en el comando.
  */
+/**
+ * Este comando se utiliza para instalar la estructura de carpetas DDD 
+ * (Diseño impulsado por el Dominio) y los buses de comandos y consultas (CQRS) 
+ * para una entidad especificada en el comando.
+ */
 class InstallCommand extends Command
 {
+    /**
+     * Define la firma del comando 'laramain:install {name}', donde 'name' 
+     * es el nombre de la entidad que el usuario quiere crear.
+     */
     /**
      * Define la firma del comando 'laramain:install {name}', donde 'name' 
      * es el nombre de la entidad que el usuario quiere crear.
@@ -21,13 +30,26 @@ class InstallCommand extends Command
     /**
      * Descripción del comando para indicar lo que hace.
      */
+
+    /**
+     * Descripción del comando para indicar lo que hace.
+     */
     protected $description = 'Install CQRS with DDD folder structure and Command/Query Buses for the specified entity';
+
+    /**
+     * Instancia del sistema de archivos para manipular directorios y archivos.
+     */
 
     /**
      * Instancia del sistema de archivos para manipular directorios y archivos.
      */
     protected $filesystem;
 
+    /**
+     * Constructor que inicializa el comando con el sistema de archivos.
+     *
+     * @param Filesystem $filesystem
+     */
     /**
      * Constructor que inicializa el comando con el sistema de archivos.
      *
@@ -42,12 +64,18 @@ class InstallCommand extends Command
     /**
      * Método principal que se ejecuta al correr el comando.
      */
+    /**
+     * Método principal que se ejecuta al correr el comando.
+     */
     public function handle()
     {
         // Se obtiene el nombre de la entidad desde los argumentos del comando.
+        // Se obtiene el nombre de la entidad desde los argumentos del comando.
         $name = $this->argument('name');
         $srcPath = base_path("src/{$name}");
+        $srcPath = base_path("src/{$name}");
         
+        // Verificar si la carpeta 'src' ya existe. Si no, se crea.
         // Verificar si la carpeta 'src' ya existe. Si no, se crea.
         if (!$this->filesystem->exists($srcPath)) {
             $this->info("Creating 'src' directory...");
@@ -55,12 +83,15 @@ class InstallCommand extends Command
         }
 
         // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
+        // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
         $this->createFolderStructure([
+            'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
             'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
             'App' => ['Commands', 'Queries', 'Services'],
             'Infrastructure' => ['Repository', 'Controllers','Listerners'],
         ], $srcPath, $name);
 
+        // Crear CommandBus y QueryBus.
         // Crear CommandBus y QueryBus.
         $this->createBuses();
 
@@ -80,6 +111,7 @@ class InstallCommand extends Command
             foreach ($folders as $folder) {
                 $path = "{$basePath}/{$folder}";
                 // Si el directorio no existe, lo crea.
+                // Si el directorio no existe, lo crea.
                 if (!$this->filesystem->exists($path)) {
                     $this->filesystem->makeDirectory($path, 0755, true);
                     $this->info("Created: {$path}");
@@ -91,10 +123,15 @@ class InstallCommand extends Command
     /**
      * Crea los buses de comandos (CommandBus) y consultas (QueryBus).
      */
+    /**
+     * Crea los buses de comandos (CommandBus) y consultas (QueryBus).
+     */
     protected function createBuses()
     {
         $sharedPath = base_path("src/Shared/CQRS");
+        $sharedPath = base_path("src/Shared/CQRS");
 
+        // Verificar si la carpeta Shared existe, si no, se crea.
         // Verificar si la carpeta Shared existe, si no, se crea.
         if (!$this->filesystem->exists($sharedPath)) {
             $this->filesystem->makeDirectory($sharedPath, 0755, true);
@@ -106,6 +143,8 @@ class InstallCommand extends Command
         if (!$this->filesystem->exists($commandBusPath)) {
             $this->filesystem->put($commandBusPath, file_get_contents(__DIR__.'/../Shared/CQRS/Command/CommandBus.php'));
             $this->info("Created: CommandBus.php");
+        } else {
+            $this->info("CommandBus.php already exists.");
         } else {
             $this->info("CommandBus.php already exists.");
         }
