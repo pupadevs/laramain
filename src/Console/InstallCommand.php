@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Laramain\Console;
+namespace Pupadevs\Laramain\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;

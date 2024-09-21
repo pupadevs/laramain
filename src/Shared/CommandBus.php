@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Laramain\Shared;
+namespace Pupadevs\Laramain\Shared;
 
 class CommandBus
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace VendorName\Laramain\Providers;
+namespace Pupadevs\Laramain\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use VendorName\Laramain\Console\InstallCommand;
+use Pupadevs\Laramain\Console\InstallCommand;
 
 class PackageServiceProvider extends ServiceProvider
 {

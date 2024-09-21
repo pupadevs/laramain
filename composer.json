@@ -1,5 +1,5 @@
 {
-    "name": "vendor-name/laramain",
+    "name": "pupadevs/laramain",
     "description": "CQRS with CommandBus and QueryBus for Laravel.",
     "type": "library",
     "license": "MIT",
@@ -10,19 +10,19 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Laramain\\": "src/"
+            "Pupadevs\\Laramain\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Laramain\\Providers\\PackageServiceProvider"
+                "Pupadevs\\Laramain\\Providers\\PackageServiceProvider"
             ]
         }
     },
     "scripts": {
         "post-install-cmd": [
-            "@php artisan vendor:publish --provider=\"VendorName\\Laramain\\Providers\\PackageServiceProvider\""
+            "@php artisan vendor:publish --provider=\"Pupadevs\\Laramain\\Providers\\PackageServiceProvider\""
         ]
     }
 }
