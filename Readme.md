@@ -17,4 +17,4 @@ composer require pupadevs/laramain
 ```
 Uso en Laravel 
 ```bash
-php artesan laramain:install {nombreEntidad}
+php artisan laramain:install {nombreEntidad}
