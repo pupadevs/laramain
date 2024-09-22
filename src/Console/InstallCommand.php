@@ -18,7 +18,7 @@ class InstallCommand extends Command
      * es el nombre de la entidad que el usuario quiere crear.
      */
  
-    protected $signature = 'laramain:install {name}';
+    protected $signature = 'laaramain:install {name}';
     /**
      * Descripción del comando para indicar lo que hace.
      */
@@ -48,7 +48,7 @@ class InstallCommand extends Command
         ];
         // Se obtiene el nombre de la entidad desde los argumentos del comando.
         $name = $this->argument('name');
-        $srcPath = base_path("src/{$name}");
+        $srcPath = base_path("src");
         
         // Verificar si la carpeta 'src' ya existe. Si no, se crea.
         if (!$this->filesystem->exists($srcPath)) {
@@ -80,7 +80,7 @@ class InstallCommand extends Command
     protected function createFolderStructure(array $structure, $name): void
     {
         foreach ($structure as $parent => $folders) {
-            $basePath = base_path("src/{$name}/{$parent}");
+            $basePath = base_path("src/{$parent}/{$name}");
             foreach ($folders as $folder) {
                 $path = "{$basePath}/{$folder}";
                 // Si el directorio no existe, lo crea.
