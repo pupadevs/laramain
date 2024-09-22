@@ -66,6 +66,7 @@ class InstallCommand extends Command
         $this->createStringValueObject();
         // Crear Identifier
         $this->creatIdentifier();
+        $this->updateComposerAutoload($name);
 
         $this->info('Laramain package installed successfully with CQRS and DDD structure!');
     }
@@ -204,4 +205,32 @@ class InstallCommand extends Command
             $this->info("Identifier.php already exists.");
         }
     }
+    protected function updateComposerAutoload()
+    {
+        $composerJsonPath = base_path('composer.json');
+    
+        if (!$this->filesystem->exists($composerJsonPath)) {
+            $this->error('composer.json not found!');
+            return;
+        }
+    
+        // Cargar el archivo composer.json
+        $composerJson = json_decode($this->filesystem->get($composerJsonPath), true);
+    
+        // Añadir el namespace genérico para la carpeta src
+        $namespace = 'Source\\';
+        $srcPath = 'src/';
+    
+        if (!isset($composerJson['autoload']['psr-4'][$namespace])) {
+            $composerJson['autoload']['psr-4'][$namespace] = $srcPath;
+    
+            // Guardar los cambios en composer.json
+            $this->filesystem->put($composerJsonPath, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    
+            $this->info("composer.json updated with the new namespace {$namespace}.");
+        } else {
+            $this->info("Namespace {$namespace} already exists in composer.json.");
+        }
+    }
+    
 }
