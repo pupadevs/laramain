@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Pupadevs\Laramain\Console;
 
 use Illuminate\Console\Command;
@@ -10,90 +10,62 @@ use Illuminate\Filesystem\Filesystem;
  * (Diseño impulsado por el Dominio) y los buses de comandos y consultas (CQRS) 
  * para una entidad especificada en el comando.
  */
-/**
- * Este comando se utiliza para instalar la estructura de carpetas DDD 
- * (Diseño impulsado por el Dominio) y los buses de comandos y consultas (CQRS) 
- * para una entidad especificada en el comando.
- */
+
 class InstallCommand extends Command
 {
     /**
      * Define la firma del comando 'laramain:install {name}', donde 'name' 
      * es el nombre de la entidad que el usuario quiere crear.
      */
-    /**
-     * Define la firma del comando 'laramain:install {name}', donde 'name' 
-     * es el nombre de la entidad que el usuario quiere crear.
-     */
+ 
     protected $signature = 'laramain:install {name}';
-
-    /**
-     * Descripción del comando para indicar lo que hace.
-     */
-
     /**
      * Descripción del comando para indicar lo que hace.
      */
     protected $description = 'Install CQRS with DDD folder structure and Command/Query Buses for the specified entity';
 
     /**
-     * Instancia del sistema de archivos para manipular directorios y archivos.
-     */
-
-    /**
-     * Instancia del sistema de archivos para manipular directorios y archivos.
-     */
-    protected $filesystem;
-
-    /**
      * Constructor que inicializa el comando con el sistema de archivos.
      *
      * @param Filesystem $filesystem
      */
-    /**
-     * Constructor que inicializa el comando con el sistema de archivos.
-     *
-     * @param Filesystem $filesystem
-     */
-    public function __construct(Filesystem $filesystem)
+    
+    public function __construct(protected Filesystem $filesystem)
     {
         parent::__construct();
-        $this->filesystem = $filesystem;
     }
 
     /**
      * Método principal que se ejecuta al correr el comando.
+     * @return void
      */
-    /**
-     * Método principal que se ejecuta al correr el comando.
-     */
-    public function handle()
+    public function handle(): void
     {
-        // Se obtiene el nombre de la entidad desde los argumentos del comando.
+        $folders = [
+            'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
+            'App' => ['Commands', 'Queries', 'Services'],
+            'Infrastructure' => ['Repository', 'Controllers','Listerners'],
+        ];
         // Se obtiene el nombre de la entidad desde los argumentos del comando.
         $name = $this->argument('name');
         $srcPath = base_path("src/{$name}");
-        $srcPath = base_path("src/{$name}");
         
-        // Verificar si la carpeta 'src' ya existe. Si no, se crea.
         // Verificar si la carpeta 'src' ya existe. Si no, se crea.
         if (!$this->filesystem->exists($srcPath)) {
             $this->info("Creating 'src' directory...");
             $this->filesystem->makeDirectory($srcPath, 0755, true);
         }
 
+
         // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
-        // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
-        $this->createFolderStructure([
-            'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
-            'App' => ['Commands', 'Queries', 'Services'],
-            'Infrastructure' => ['Repository', 'Controllers','Listerners'],
-        ], $srcPath, $name);
+        $this->createFolderStructure($folders, $name);
 
         // Crear CommandBus y QueryBus.
-        // Crear CommandBus y QueryBus.
         $this->createBuses();
+        // Crear StringValueObject
         $this->createStringValueObject();
+        // Crear Identifier
+        $this->creatIdentifier();
 
         $this->info('Laramain package installed successfully with CQRS and DDD structure!');
     }
@@ -103,8 +75,9 @@ class InstallCommand extends Command
      *
      * @param array $structure Estructura de carpetas a crear.
      * @param string $entityName Nombre de la entidad para la que se crea la estructura.
+     * @return void
      */
-    protected function createFolderStructure(array $structure, $srcPath, $name)
+    protected function createFolderStructure(array $structure, $name): void
     {
         foreach ($structure as $parent => $folders) {
             $basePath = base_path("src/{$name}/{$parent}");
@@ -122,11 +95,9 @@ class InstallCommand extends Command
 
     /**
      * Crea los buses de comandos (CommandBus) y consultas (QueryBus).
+     * @return void
      */
-    /**
-     * Crea los buses de comandos (CommandBus) y consultas (QueryBus).
-     */
-    protected function createBuses()
+    protected function createBuses(): void
     {
         $sharedPath = base_path("src/Shared/CQRS");
     
@@ -215,7 +186,7 @@ class InstallCommand extends Command
     /**
      * Crea un Identificador en la carpeta Shared/Identifier si no existe.
      */
-    protected function creatIdetifier()
+    protected function creatIdentifier()
     {
         $identifierPath = base_path('src/Shared/Identifier');
         if (!$this->filesystem->exists($identifierPath)) {

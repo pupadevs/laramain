@@ -2,22 +2,33 @@
 
 namespace Pupadevs\Laramain\Shared\CQRS\Command;
 
+use Illuminate\Contracts\Container\Container;
+
+
 class CommandBus
 {
     protected $handlers = [];
 
-    public function registerHandler($command, $handler)
+    public function __construct(protected Container $container)
     {
-        $this->handlers[get_class($command)] = $handler;
     }
+
+  
 
     public function handle($command)
     {
-        $commandClass = get_class($command);
-        if (!isset($this->handlers[$commandClass])) {
-            throw new \Exception("No handler registered for command: {$commandClass}");
+        $commandClass = $this->resolveHandlerClass($command);
+        if(!$commandClass) {
+            throw new \Exception('No handler registered for command: '.get_class($command));
         }
+        $handler = $this->container->make($commandClass);
 
         return $this->handlers[$commandClass]->handle($command);
+    }
+
+    protected function resolveHandlerClass(Command $command)
+    {
+  
+        return get_class($command).'Handler';
     }
 }
