@@ -13,3 +13,8 @@ Para instalar este paquete en tu proyecto Laravel, utiliza Composer:
 
 ```bash
 composer require pupadevs/laramain
+
+```
+Uso en Laravel 
+```bash
+php artesan laramain:install {nombreEntidad}
