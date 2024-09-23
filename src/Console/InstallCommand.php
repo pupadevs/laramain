@@ -1,236 +1,126 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Pupadevs\Laramain\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Pupadevs\Laramain\Utils\CreateProviderFolder;
+use Pupadevs\Laramain\Utils\UpdateComposer;
 
 /**
- * Este comando se utiliza para instalar la estructura de carpetas DDD 
- * (Diseño impulsado por el Dominio) y los buses de comandos y consultas (CQRS) 
- * para una entidad especificada en el comando.
+ * Comando para instalar una estructura de carpetas DDD (Diseño Impulsado por el Dominio)
+ * y los buses de comandos y consultas (CQRS) para una entidad especificada.
  */
-
 class InstallCommand extends Command
 {
     /**
-     * Define la firma del comando 'laramain:install {name}', donde 'name' 
-     * es el nombre de la entidad que el usuario quiere crear.
+     * Firma del comando que se ejecuta en la terminal. 
+     * 'laramain:install {name}' donde 'name' es el nombre de la entidad.
      */
- 
-    protected $signature = 'laaramain:install {name}';
+    protected $signature = 'laramain:install {name}';
+
     /**
-     * Descripción del comando para indicar lo que hace.
+     * Descripción que aparece en la terminal al usar el comando --help.
      */
     protected $description = 'Install CQRS with DDD folder structure and Command/Query Buses for the specified entity';
 
     /**
-     * Constructor que inicializa el comando con el sistema de archivos.
-     *
-     * @param Filesystem $filesystem
+     * Constructor que inicializa las dependencias necesarias para el comando.
+     * 
+     * @param Filesystem $filesystem  Acceso al sistema de archivos.
+     * @param CreateProviderFolder $createProvider  Servicio para crear el folder Provider.
+     * @param UpdateComposer $updateComposer  Servicio para actualizar el archivo composer.json.
      */
-    
-    public function __construct(protected Filesystem $filesystem)
-    {
+    public function __construct(
+        protected Filesystem $filesystem, 
+        private CreateProviderFolder $createProvider,
+        private UpdateComposer $updateComposer
+    ) {
         parent::__construct();
     }
 
     /**
      * Método principal que se ejecuta al correr el comando.
-     * @return void
+     * Este método configura la estructura de carpetas basada en DDD y realiza
+     * acciones adicionales como la actualización del archivo composer.json.
      */
     public function handle(): void
     {
+        // Estructura de carpetas que sigue el enfoque DDD.
         $folders = [
-            'Domain' => ['Entity', 'ValueObject', 'DomainEvent', 'Interfaces', 'DomainServices'],
-            'App' => ['Commands', 'Queries', 'Services'],
-            'Infrastructure' => ['Repository', 'Controllers','Listerners'],
+            'Domain' => ['Entities', 'ValueObjects', 'DomainEvents', 'Interfaces', 'DomainServices'],
+            'App' => ['DTOs', 'Commands', 'Queries', 'Services'],
+            'Infrastructure' => ['Http' => ['Controllers', 'Middlewares', 'Requests'],'Listerners', 'Jobs', 'Repositories'],
         ];
-        // Se obtiene el nombre de la entidad desde los argumentos del comando.
+
+        // Obtiene el nombre de la entidad desde el argumento pasado al comando.
         $name = $this->argument('name');
+
+        // Define la ruta base donde se creará la estructura ('src').
         $srcPath = base_path("src");
-        
-        // Verificar si la carpeta 'src' ya existe. Si no, se crea.
+
+        // Verifica si la carpeta 'src' ya existe, de lo contrario, la crea.
         if (!$this->filesystem->exists($srcPath)) {
             $this->info("Creating 'src' directory...");
-            $this->filesystem->makeDirectory($srcPath, 0755, true);
+        } else {
+            $this->info("'src' directory already exists.");
         }
 
-
-        // Crear la estructura de carpetas basada en DDD (Diseño impulsado por el Dominio).
+        // Crea la estructura de carpetas DDD para la entidad especificada.
         $this->createFolderStructure($folders, $name);
 
-        // Crear CommandBus y QueryBus.
-        $this->createBuses();
-        // Crear StringValueObject
-        $this->createStringValueObject();
-        // Crear Identifier
-        $this->creatIdentifier();
-        $this->updateComposerAutoload($name);
+        // Crea los providers en la carpeta correspondiente.
+        $this->createProvider->createProvider($this->filesystem, $this);
 
+        // Actualiza el archivo composer.json para reflejar el autoload del namespace.
+        $this->updateComposer->updateComposerAutoload($this->filesystem, $this);
+
+        // Mensaje de confirmación tras la instalación exitosa.
         $this->info('Laramain package installed successfully with CQRS and DDD structure!');
     }
 
     /**
-     * Crea la estructura de carpetas de DDD para la entidad especificada.
-     *
-     * @param array $structure Estructura de carpetas a crear.
-     * @param string $entityName Nombre de la entidad para la que se crea la estructura.
-     * @return void
+     * Crea la estructura de carpetas de acuerdo con el enfoque DDD.
+     * 
+     * @param array $structure  Arreglo que define la estructura de carpetas a crear.
+     * @param string $entityName  Nombre de la entidad para la cual se está creando la estructura.
      */
     protected function createFolderStructure(array $structure, $name): void
     {
+        // Itera sobre la estructura definida y crea las carpetas.
         foreach ($structure as $parent => $folders) {
-            $basePath = base_path("src/{$parent}/{$name}");
-            foreach ($folders as $folder) {
-                $path = "{$basePath}/{$folder}";
-                // Si el directorio no existe, lo crea.
-                // Si el directorio no existe, lo crea.
-                if (!$this->filesystem->exists($path)) {
-                    $this->filesystem->makeDirectory($path, 0755, true);
-                    $this->info("Created: {$path}");
+            // Define la ruta base para las carpetas.
+            $basePath = base_path("src/{$name}/{$parent}");
+    
+            // Verifica si la carpeta ya existe, de lo contrario, la crea.
+            if (!$this->filesystem->exists($basePath)) {
+                $this->filesystem->makeDirectory($basePath, 0755, true);
+                $this->info("Created: {$basePath}");
+            } else {
+                $this->line("{$parent} already exists.");
+            }
+    
+            // Recorre las subcarpetas y las crea si no existen.
+            foreach ($folders as $key => $folder) {
+                if (is_array($folder)) {
+                    // Llamada recursiva para crear subcarpetas.
+                    $this->createFolderStructure([$key => $folder], "{$name}/{$parent}");
+                } else {
+                    // Crea la carpeta individual.
+                    $path = "{$basePath}/{$folder}";
+    
+                    if (!$this->filesystem->exists($path)) {
+                        $this->filesystem->makeDirectory($path, 0755, true);
+                        $this->info("Created: {$path}");
+                    } else {
+                        $this->line("{$folder} already exists.");
+                    }
                 }
             }
         }
     }
 
-    /**
-     * Crea los buses de comandos (CommandBus) y consultas (QueryBus).
-     * @return void
-     */
-    protected function createBuses(): void
-    {
-        $sharedPath = base_path("src/Shared/CQRS");
-    
-        // Verificar si la carpeta Shared existe, si no, se crea.
-        if (!$this->filesystem->exists($sharedPath)) {
-            $this->filesystem->makeDirectory($sharedPath, 0755, true);
-            $this->info("Created: {$sharedPath}");
-        }
-    
-        // Crear la carpeta Command si no existe.
-        $commandPath = "{$sharedPath}/Command";
-        if (!$this->filesystem->exists($commandPath)) {
-            $this->filesystem->makeDirectory($commandPath, 0755, true);
-            $this->info("Created: {$commandPath}");
-        }
-    
-        // Crear CommandBus.php si no existe.
-        $commandBusPath = "{$commandPath}/CommandBus.php";
-        if (!$this->filesystem->exists($commandBusPath)) {
-            $this->filesystem->put($commandBusPath, file_get_contents(__DIR__.'/../Shared/CQRS/Command/CommandBus.php'));
-            $this->info("Created: CommandBus.php");
-        } else {
-            $this->info("CommandBus.php already exists.");
-        } 
-    
-        // Crear Command.php si no existe.
-        $commandInterfacePath = "{$commandPath}/Command.php";
-        if (!$this->filesystem->exists($commandInterfacePath)) {
-            $this->filesystem->put($commandInterfacePath, file_get_contents(__DIR__.'/../Shared/CQRS/Command/Command.php'));
-            $this->info("Created: Command.php");
-        } else {
-            $this->info("Command.php already exists.");
-        }
-    
-        // Crear la carpeta Query si no existe.
-        $queryPath = "{$sharedPath}/Query";
-        if (!$this->filesystem->exists($queryPath)) {
-            $this->filesystem->makeDirectory($queryPath, 0755, true);
-            $this->info("Created: {$queryPath}");
-        }
-    
-        // Crear QueryBus.php si no existe.
-        $queryBusPath = "{$queryPath}/QueryBus.php";
-        if (!$this->filesystem->exists($queryBusPath)) {
-            $this->filesystem->put($queryBusPath, file_get_contents(__DIR__.'/../Shared/CQRS/Query/QueryBus.php'));
-            $this->info("Created: QueryBus.php");
-        } else {
-            $this->info("QueryBus.php already exists.");
-        }
-    
-        // Crear Query.php si no existe.
-        $queryInterfacePath = "{$queryPath}/Query.php";
-        if (!$this->filesystem->exists($queryInterfacePath)) {
-            $this->filesystem->put($queryInterfacePath, file_get_contents(__DIR__.'/../Shared/CQRS/Query/Query.php'));
-            $this->info("Created: Query.php");
-        } else {
-            $this->info("Query.php already exists.");
-        }
-    }
-    
-
-    /**
-     * Crea un StringValueObject en la carpeta Shared/ValueObject si no existe.
-     */
-    protected function createStringValueObject()
-    {
-        $sharePath = base_path('src/Shared/StringValueObject');
-
-        // Verificar si la carpeta Shared existe, si no, se crea.
-        if (!$this->filesystem->exists($sharePath)) {
-            $this->filesystem->makeDirectory($sharePath, 0755, true);
-            $this->info("Created: {$sharePath}");
-        } else {
-            $this->info("{$sharePath} already exists.");
-        }
-
-        // Crear StringValueObject.php si no existe.
-        if (!$this->filesystem->exists("{$sharePath}/StringValueObject.php")) {
-            $this->filesystem->put("{$sharePath}/StringValueObject.php", file_get_contents(__DIR__.'/../Shared/StringValueObject/StringValueObject.php'));
-            $this->info("Created: StringValueObject.php");
-        } else {
-            $this->info("StringValueObject.php already exists.");
-        }
-    }
-
-    /**
-     * Crea un Identificador en la carpeta Shared/Identifier si no existe.
-     */
-    protected function creatIdentifier()
-    {
-        $identifierPath = base_path('src/Shared/Identifier');
-        if (!$this->filesystem->exists($identifierPath)) {
-            $this->filesystem->makeDirectory($identifierPath, 0755, true);
-            $this->info("Created: {$identifierPath}");
-        } else {
-            $this->info("{$identifierPath} already exists.");
-        }
-
-        // Crear Identifier.php si no existe.
-        if (!$this->filesystem->exists("{$identifierPath}/Identifier.php")) {
-            $this->filesystem->put("{$identifierPath}/Identifier.php", file_get_contents(__DIR__.'/../Shared/Identifier/Identifier.php'));
-            $this->info("Created: Identifier.php");
-        } else {
-            $this->info("Identifier.php already exists.");
-        }
-    }
-    protected function updateComposerAutoload()
-    {
-        $composerJsonPath = base_path('composer.json');
-    
-        if (!$this->filesystem->exists($composerJsonPath)) {
-            $this->error('composer.json not found!');
-            return;
-        }
-    
-        // Cargar el archivo composer.json
-        $composerJson = json_decode($this->filesystem->get($composerJsonPath), true);
-    
-        // Añadir el namespace genérico para la carpeta src
-        $namespace = 'Source\\';
-        $srcPath = 'src/';
-    
-        if (!isset($composerJson['autoload']['psr-4'][$namespace])) {
-            $composerJson['autoload']['psr-4'][$namespace] = $srcPath;
-    
-            // Guardar los cambios en composer.json
-            $this->filesystem->put($composerJsonPath, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    
-            $this->info("composer.json updated with the new namespace {$namespace}.");
-        } else {
-            $this->info("Namespace {$namespace} already exists in composer.json.");
-        }
-    }
-    
+   
 }
