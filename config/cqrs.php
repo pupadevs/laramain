@@ -1,61 +1,45 @@
 <?php
-
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Command Bus
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define the default command bus implementation. 
-    | You can specify the class that will be responsible for handling
-    | your commands.
-    |
-    */
+/*
+|--------------------------------------------------------------------------
+| Command Bus (Bus de Comandos)
+|--------------------------------------------------------------------------
+|
+| Aquí puedes definir la implementación del bus de comandos predeterminada. 
+| Puedes especificar la clase que será responsable de manejar tus comandos.
+|
+*/
 
-    'command_bus' => [
-        'class' => \PupaDevs\Laramain\Shared\CQRS\Command\CommandBus::class,
-    ],
+'command_bus' => [
+    'class' => \PupaDevs\Laramain\Shared\CQRS\Command\CommandBus::class,
+],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Query Bus
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define the default query bus implementation. 
-    | You can specify the class that will be responsible for handling
-    | your queries.
-    |
-    */
+/*
+|--------------------------------------------------------------------------
+| Query Bus (Bus de Consultas)
+|--------------------------------------------------------------------------
+|
+| Aquí puedes definir la implementación del bus de consultas predeterminada. 
+| Puedes especificar la clase que será responsable de manejar tus consultas.
+|
+*/
 
-    'query_bus' => [
-        'class' => \PupaDevs\Laramain\Shared\CQRS\Query\QueryBus::class,
-    ],
+'query_bus' => [
+    'class' => \PupaDevs\Laramain\Shared\CQRS\Query\QueryBus::class,
+],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Event Dispatching
-    |--------------------------------------------------------------------------
-    |
-    | Here you can define whether to enable event dispatching 
-    | for your commands and queries. If set to true, the bus will
-    | dispatch events upon command or query handling.
-    |
-    */
+/*
+|--------------------------------------------------------------------------
+| Despacho de Eventos
+|--------------------------------------------------------------------------
+|
+| Aquí puedes definir si deseas habilitar el despacho de eventos 
+| para tus comandos y consultas. Si se establece en true, el bus
+| despachará eventos al manejar un comando o consulta.
+|
+*/
 
-    'dispatch_events' => true,
+'dispatch_events' => true,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Middleware
-    |--------------------------------------------------------------------------
-    |
-    | Define any middleware you wish to apply to commands and queries.
-    | This can be useful for things like logging, validation, etc.
-    |
-    */
-
-    'middleware' => [
-        // Example: \PupaDevs\Laramain\Middleware\LoggingMiddleware::class,
-    ],
 ];

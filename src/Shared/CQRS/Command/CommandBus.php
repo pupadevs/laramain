@@ -1,34 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pupadevs\Laramain\Shared\CQRS\Command;
-
 use Illuminate\Contracts\Container\Container;
+use Pupadevs\Laramain\Shared\CQRS\Command\Command;
 
-
+/**
+ * Clase CommandBus que se encarga de gestionar la ejecución de comandos 
+ * mediante la resolución automática de sus manejadores.
+ */
 class CommandBus
 {
-    protected $handlers = [];
+    /**
+     * Instancia del contenedor de dependencias (IoC container).
+     * 
+     * @var Container
+     */
+    protected Container $container;
 
-    public function __construct(protected Container $container)
+    /**
+     * Constructor del CommandBus.
+     * 
+     * @param Container $container El contenedor de dependencias que gestiona la inyección de clases.
+     */
+    public function __construct(Container $container)
     {
+        $this->container = $container;
     }
 
-  
-
-    public function handle($command)
+    /**
+     * Ejecuta el comando proporcionado al resolver su manejador.
+     * 
+     * @param Command $command El comando que debe ser ejecutado.
+     * @return mixed El resultado de la ejecución del comando.
+     */
+    public function execute(Command $command)
     {
-        $commandClass = $this->resolveHandlerClass($command);
-        if(!$commandClass) {
-            throw new \Exception('No handler registered for command: '.get_class($command));
-        }
-        $handler = $this->container->make($commandClass);
+        // Resolver la clase del manejador correspondiente al comando.
+        $handlerClass = $this->resolveHandlerClass($command);
+        // Obtener una instancia del manejador desde el contenedor de dependencias.
+        $handler = $this->container->make($handlerClass);
 
-        return $this->handlers[$commandClass]->handle($command);
+        // Ejecutar el manejador con el comando.
+        return $handler->execute($command);
     }
 
+    /**
+     * Resuelve la clase del manejador basada en el comando proporcionado.
+     * 
+     * Se asume que el manejador del comando sigue la convención de 
+     * agregar 'Handler' al nombre de la clase del comando.
+     * 
+     * @param Command $command El comando para el que se debe resolver el manejador.
+     * @return string El nombre completo de la clase del manejador.
+     */
     protected function resolveHandlerClass(Command $command)
     {
-  
+        // Retorna el nombre completo de la clase del manejador correspondiente.
         return get_class($command).'Handler';
     }
 }
