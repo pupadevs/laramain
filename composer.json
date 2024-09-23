@@ -1,12 +1,26 @@
 {
     "name": "pupadevs/laramain",
-    "description": "DDD, CQRS, UUID and more",
+    "description": "Install CQRS with DDD folder structure and Command/Query Buses for the specified entity",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Peterson Andres Sena (Pupa)",
+            "homepage": "https://github.com/pupadevs"
+
+        }
+    ],
+    "repository": "https://github.com/pupadevs/laramain",
+    "funding": [
+        {
+            "type": "paypal",
+            "url": "https://paypal.me/pvpaofficial?country.x=ES&locale.x=es_ES"
+        }
+    ],
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
-        "illuminate/console": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/support": "^9.0|^10.0|^11.0",
+        "illuminate/console": "^9.0|^10.0|^11.0",
        
         "ramsey/uuid": "*"
     },
