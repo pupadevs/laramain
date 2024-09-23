@@ -23,10 +23,16 @@ class Identifier implements StringValueObject
      * Constructor de la clase Identifier.
      * Si no se proporciona un identificador, se genera uno automáticamente usando UUID.
      */
-    public function __construct(?string $identifier = null)
+    public function __construct(string $identifier = null)
     {
         // Si no se proporciona un identificador, generar uno usando UUID v4.
-        $this->identifier = $identifier ?? Uuid::uuid4()->toString();
+        if ($identifier === null) {
+            $uuid = Uuid::uuid4();
+            $this->identifier = $uuid->toString();
+        } else {
+            $this->identifier = $identifier;
+        }
+    
     }
 
     /**
